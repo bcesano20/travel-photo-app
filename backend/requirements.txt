@@ -1,0 +1,34 @@
+# Version ranges are pinned to major.minor to stay reproducible without
+# blocking security patches. For a fully locked/reproducible build (e.g.
+# right before a Railway deploy), generate an exact freeze with:
+#   pip install -r requirements.txt && pip freeze > requirements.lock.txt
+
+# ---- Core ----
+Django==5.2.16                     # current LTS, supported until April 2028
+djangorestframework>=3.15,<4.0
+django-cors-headers>=4.4,<5.0      # frontend (Vercel) and backend (Railway) are on different domains
+django-environ>=0.11,<1.0          # loads .env, parses DATABASE_URL / REDIS_URL
+django-filter>=24.2,<25.0          # querying Album/Media by type, date, etc.
+
+# ---- Database ----
+psycopg2-binary>=2.9,<3.0
+
+# ---- Object storage (Cloudflare R2 — S3-compatible API) ----
+boto3>=1.34                        # used to generate presigned upload/download URLs
+
+# ---- Async worker (thumbnail generation, EXIF/metadata extraction) ----
+celery==5.6.3
+redis>=5.0,<6.0                    # Python client used as the Celery broker/result backend
+
+# ---- Media processing (used by the Celery worker) ----
+Pillow>=10.4,<11.0                 # image thumbnails + EXIF capture date
+# ffmpeg must be installed as a system binary (not a pip package) for video
+# thumbnails/duration extraction — add it via nixpacks.toml / apt on Railway.
+
+# ---- Production server & static files ----
+gunicorn>=22.0,<23.0
+whitenoise>=6.7,<7.0               # serves Django admin's static files on Railway
+
+# ---- Dev tooling (formatting) ----
+black>=24.0,<25.0
+isort>=5.13,<6.0
