@@ -69,6 +69,16 @@ python manage.py runserver
 
 The API will be available at `http://localhost:8000`. The Django admin (`/admin`) is usable as a stopgap panel for managing albums/media before the custom frontend panel is built.
 
+Formatting (Black + isort) is enforced in CI on every PR touching `backend/`. To check locally before pushing:
+
+```bash
+cd backend
+black --check --diff .
+isort --check-only --diff .
+```
+
+To auto-fix, drop `--check`/`--check-only` (and `--diff`): `black .` and `isort .`.
+
 ### 2. Worker (Celery, for thumbnail generation)
 
 Needs Redis running locally first:

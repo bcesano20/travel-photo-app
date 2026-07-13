@@ -1,6 +1,8 @@
 [tool.black]
 line-length = 88
 target-version = ["py311"]
+extend-exclude = "^/travel-photo/"
 
 [tool.isort]
 profile = "black"
+skip = ["travel-photo"]
