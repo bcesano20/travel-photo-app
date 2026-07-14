@@ -10,9 +10,7 @@ class ShareLinkSerializer(serializers.ModelSerializer):
     returned in responses.
     """
 
-    password = serializers.CharField(
-        write_only=True, required=False, allow_blank=True
-    )
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
     url = serializers.SerializerMethodField()
 
     class Meta:

@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from ..models import Media
 
+
 # This make the Media editable in the Album admin panel
 class MediaInline(admin.TabularInline):
     model = Media

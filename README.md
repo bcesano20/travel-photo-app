@@ -75,6 +75,9 @@ Formatting (Black + isort) is enforced in CI on every PR touching `backend/`. To
 cd backend
 black --check --diff .
 isort --check-only --diff .
+
+cd backend
+travel-photo\Scripts\black.exe .
 ```
 
 To auto-fix, drop `--check`/`--check-only` (and `--diff`): `black .` and `isort .`.
