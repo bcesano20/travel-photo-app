@@ -13,3 +13,6 @@ MEDIA_STATUS_CHOICES = [
     (MEDIA_STATUS_READY, "Ready"),
     (MEDIA_STATUS_ERROR, "Error"),
 ]
+
+# ERROR MESSAGES
+SHARE_LINK_NOT_FOUND_MESSAGE = "This link doesn't exist or is no longer available."
