@@ -6,6 +6,7 @@
 # ---- Core ----
 Django==5.2.16                     # current LTS, supported until April 2028
 djangorestframework>=3.15,<4.0
+djangorestframework-simplejwt>=5.3,<6.0  # JWT auth for the single admin user
 django-cors-headers>=4.4,<5.0      # frontend (Vercel) and backend (Railway) are on different domains
 django-environ>=0.11,<1.0          # loads .env, parses DATABASE_URL / REDIS_URL
 django-filter>=24.2,<25.0          # querying Album/Media by type, date, etc.
