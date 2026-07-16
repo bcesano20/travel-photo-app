@@ -133,9 +133,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
 SIMPLE_JWT = {
@@ -143,7 +141,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     "ROTATE_REFRESH_TOKENS": True,
 }
- 
+
 CORS_ALLOWED_ORIGINS = [
     env("FRONTEND_URL", default="http://localhost:3000"),
 ]
@@ -154,7 +152,7 @@ CELERY_RESULT_BACKEND = env("REDIS_URL", default="redis://localhost:6379/0")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
- 
+
 # Cloudflare R2 (used by gallery/services/storage.py)
 R2_ACCOUNT_ID = env("R2_ACCOUNT_ID")
 R2_ACCESS_KEY_ID = env("R2_ACCESS_KEY_ID")
