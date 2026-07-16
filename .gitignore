@@ -1,6 +1,6 @@
 .env
 .env.*
-!.env.example
+!.env.sample
 
 # ---- Backend: Python / Django ----
 __pycache__/
@@ -15,7 +15,7 @@ dist/
 venv/
 .venv/
 env/
-travel-photo
+travel-photo/
 
 # local sqlite db (if used during early dev before Postgres is wired up)
 *.sqlite3
