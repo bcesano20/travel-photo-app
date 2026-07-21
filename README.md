@@ -111,6 +111,16 @@ npm run dev
 
 The app will be available at `http://localhost:3000`.
 
+Formatting (Prettier) and linting (ESLint) — check locally before pushing:
+
+```bash
+cd frontend
+npm run lint
+npm run format:check
+```
+
+To auto-fix: `npm run format`.
+
 ## Environment variables
 
 **`backend/.env`**
