@@ -84,19 +84,19 @@ To auto-fix, drop `--check`/`--check-only` (and `--diff`): `black .` and `isort 
 
 ### 2. Worker (Celery, for thumbnail generation)
 
-Needs Redis running locally first:
-
-```bash
-docker run -d --name redis -p 6379:6379 redis:7
-```
+Needs Redis (or a Redis-compatible server) running locally first — on Windows without Docker, [Memurai](https://www.memurai.com/get-memurai) (Developer Edition) is the simplest native option; on Linux/Mac, `docker run -d --name redis -p 6379:6379 redis:7` works fine, or a native install.
 
 Then, from `backend/`, in the same virtual environment:
 
 ```bash
-celery -A gallery worker -l info
+celery -A celery_app worker -l info
 ```
 
-(Not yet implemented — see `CLAUDE.md` for the planned Celery setup.)
+**On native Windows, add `--pool=solo`:** Celery's default worker pool (prefork) relies on Unix `fork()`, which doesn't exist on Windows — the command above will fail without it.
+
+```powershell
+celery -A celery_app worker -l info --pool=solo
+```
 
 Without the worker running, uploaded media will stay stuck in `processing_status = pending` and thumbnails won't be generated — the API will still work, but the gallery grid won't have preview images.
 
