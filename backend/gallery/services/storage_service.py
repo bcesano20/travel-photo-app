@@ -11,7 +11,7 @@ import boto3
 from botocore.client import Config
 from django.conf import settings
 
-PRESIGNED_UPLOAD_EXPIRES_IN = 60 * 15  # 15 minutes — enough for a slow upload to start
+PRESIGNED_EXPIRES_IN = 60 * 15  # 15 minutes — enough for a slow upload to start
 
 
 def get_r2_client():
@@ -52,7 +52,25 @@ def generate_presigned_upload_url(storage_key: str, content_type: str) -> str:
             "Key": storage_key,
             "ContentType": content_type,
         },
-        ExpiresIn=PRESIGNED_UPLOAD_EXPIRES_IN,
+        ExpiresIn=PRESIGNED_EXPIRES_IN,
+    )
+
+
+def generate_presigned_download_url(storage_key: str) -> str:
+    """
+    Short-lived, read-only URL the frontend can put directly in an <img>/
+    <video> src. This is the stopgap for viewing private bucket content
+    before the Cloudflare Worker + CDN layer exists in front of R2 — once
+    that's in place, this can be replaced by a Worker URL that also
+    benefits from edge caching (see CLAUDE.md).
+    """
+    if not storage_key:
+        return ""
+    client = get_r2_client()
+    return client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": settings.R2_BUCKET_NAME, "Key": storage_key},
+        ExpiresIn=PRESIGNED_EXPIRES_IN,
     )
 
 
