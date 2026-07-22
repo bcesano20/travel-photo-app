@@ -5,6 +5,7 @@ from gallery.services.storage_service import (
     delete_object,
     download_object,
     generate_presigned_upload_url,
+    generate_presigned_download_url,
     upload_bytes,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "delete_object",
     "download_object",
     "generate_presigned_upload_url",
+    "generate_presigned_download_url",
     "upload_bytes",
 ]
