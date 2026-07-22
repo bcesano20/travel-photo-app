@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from gallery.models import Album
+from gallery.services.storage_service import generate_presigned_download_url
 
 from .media import MediaSerializer
 
@@ -22,9 +23,14 @@ class AlbumListSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "media_count",
-            "cover_thumbnail",
+            "cover_thumbnail_url",
             "created_at",
         ]
+
+    def get_cover_thumbnail_url(self, obj):
+        if obj.cover and obj.cover.thumbnail_key:
+            return generate_presigned_download_url(obj.cover.thumbnail_key)
+        return None
 
 
 class AlbumDetailSerializer(serializers.ModelSerializer):
