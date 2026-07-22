@@ -5,6 +5,9 @@ from gallery.services.storage_service import generate_presigned_download_url
 
 
 class MediaSerializer(serializers.ModelSerializer):
+    thumbnail_url = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Media
         fields = [
@@ -14,8 +17,8 @@ class MediaSerializer(serializers.ModelSerializer):
             "original_filename",
             "storage_key",
             "thumbnail_key",
-            "thumbnail_url",   
-            "file_url",       
+            "thumbnail_url",
+            "file_url",
             "size",
             "content_type",
             "width",
@@ -37,7 +40,11 @@ class MediaSerializer(serializers.ModelSerializer):
         ]
 
     def get_thumbnail_url(self, obj):
-        return generate_presigned_download_url(obj.thumbnail_key) if obj.thumbnail_key else None
- 
+        return (
+            generate_presigned_download_url(obj.thumbnail_key)
+            if obj.thumbnail_key
+            else None
+        )
+
     def get_file_url(self, obj):
         return generate_presigned_download_url(obj.storage_key)

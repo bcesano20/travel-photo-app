@@ -10,9 +10,7 @@ class AlbumListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for the album list in the private admin panel."""
 
     media_count = serializers.IntegerField(source="media.count", read_only=True)
-    cover_thumbnail = serializers.CharField(
-        source="cover.thumbnail_key", read_only=True, default=None
-    )
+    cover_thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Album

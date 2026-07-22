@@ -42,7 +42,10 @@ const NewAlbumForm = ({ onCreated }: { onCreated: () => void }) => {
     setError(null);
     try {
       await apiPost(API_ENDPOINT_URL.ALBUMS_API, {
-        albumData,
+        name: albumData.name,
+        description: albumData.description,
+        start_date: albumData.startDate || null,
+        end_date: albumData.endDate || null,
       });
       onCreated();
     } catch {
