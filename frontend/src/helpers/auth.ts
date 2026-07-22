@@ -35,7 +35,7 @@ export async function login(req: AuthLoginInterface): Promise<void> {
   const res = await fetch(`${API_URL}/api/auth/token/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ req }),
+    body: JSON.stringify(req),
   });
 
   if (!res.ok) {

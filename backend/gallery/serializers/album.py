@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from gallery.models import Album
+from gallery.services.storage_service import generate_presigned_download_url
 
 from .media import MediaSerializer
 
@@ -9,9 +10,7 @@ class AlbumListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for the album list in the private admin panel."""
 
     media_count = serializers.IntegerField(source="media.count", read_only=True)
-    cover_thumbnail = serializers.CharField(
-        source="cover.thumbnail_key", read_only=True, default=None
-    )
+    cover_thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Album
@@ -22,9 +21,14 @@ class AlbumListSerializer(serializers.ModelSerializer):
             "start_date",
             "end_date",
             "media_count",
-            "cover_thumbnail",
+            "cover_thumbnail_url",
             "created_at",
         ]
+
+    def get_cover_thumbnail_url(self, obj):
+        if obj.cover and obj.cover.thumbnail_key:
+            return generate_presigned_download_url(obj.cover.thumbnail_key)
+        return None
 
 
 class AlbumDetailSerializer(serializers.ModelSerializer):

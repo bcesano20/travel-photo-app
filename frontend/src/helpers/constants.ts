@@ -8,6 +8,8 @@ export const ERROR_MESSAGES = {
   INCORRECT_CREDENTIALS_ES: "Email o contraseña incorrectos.",
   FIELD_REQUIRED: "Este campo es obligatorio.",
   EMAIL_FORMAT_INVALID: "Ingresá un email válido.",
+  ALBUMS_NOT_LOAD: "No se pudieron cargar los álbumes.",
+  ALBUM_NOT_CREATED: "No se pudo crear el álbum.",
 };
 
 export const REGEXP = {
@@ -16,6 +18,7 @@ export const REGEXP = {
 
 export const API_ENDPOINT_URL = {
   REFRESH: "api/auth/token/refresh/",
+  ALBUMS_API: "api/albums/",
 };
 
 export const ROUTES = {
