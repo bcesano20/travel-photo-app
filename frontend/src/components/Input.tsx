@@ -1,11 +1,12 @@
-import type { InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes, Ref } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export const Input = ({ label, id, error, ...props }: InputProps) => {
+export const Input = ({ label, id, error, ref, ...props }: InputProps) => {
   const inputId = id ?? props.name;
 
   return (
@@ -14,6 +15,7 @@ export const Input = ({ label, id, error, ...props }: InputProps) => {
         {label}
       </label>
       <input
+        ref={ref}
         id={inputId}
         className={`input ${error ? "focus:border-red-400 focus:ring-red-100" : ""}`}
         {...props}
