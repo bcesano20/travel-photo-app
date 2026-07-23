@@ -51,7 +51,7 @@ const ShareLinkPanel = ({ albumId }: { albumId: number }) => {
   };
 
   const fullUrl = (token: string) => {
-    return `${window.location.origin}/a/${token}`;
+    return `${window.location.origin}/gallery/${token}`;
   };
 
   const handleCopy = async () => {
