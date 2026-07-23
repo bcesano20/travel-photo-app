@@ -5,7 +5,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   error?: string;
 }
 
-export const Textarea = ({ label, id, error, ...props }: TextareaProps) => {
+export const Textarea = ({ label, id, error, className, ...props }: TextareaProps) => {
   const textareaId = id ?? props.name;
 
   return (
@@ -15,7 +15,9 @@ export const Textarea = ({ label, id, error, ...props }: TextareaProps) => {
       </label>
       <textarea
         id={textareaId}
-        className={`input ${error ? "focus:border-red-400 focus:ring-red-100" : ""}`}
+        className={["input", error ? "focus:border-red-400 focus:ring-red-100" : "", className]
+          .filter(Boolean)
+          .join(" ")}
         {...props}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
