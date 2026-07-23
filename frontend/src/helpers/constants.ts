@@ -27,5 +27,5 @@ export const API_ENDPOINT_URL = {
 export const ROUTES = {
   LOGIN: "/login",
   ADMIN: "/admin",
-  ALBUM: "/admin/albums"
+  ALBUM: "/admin/albums",
 };
