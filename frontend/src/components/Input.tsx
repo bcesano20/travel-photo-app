@@ -6,7 +6,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   ref?: Ref<HTMLInputElement>;
 }
 
-export const Input = ({ label, id, error, ref, ...props }: InputProps) => {
+export const Input = ({ label, id, error, ref, className, ...props }: InputProps) => {
   const inputId = id ?? props.name;
 
   return (
@@ -17,7 +17,9 @@ export const Input = ({ label, id, error, ref, ...props }: InputProps) => {
       <input
         ref={ref}
         id={inputId}
-        className={`input ${error ? "focus:border-red-400 focus:ring-red-100" : ""}`}
+        className={["input", error ? "focus:border-red-400 focus:ring-red-100" : "", className]
+          .filter(Boolean)
+          .join(" ")}
         {...props}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}

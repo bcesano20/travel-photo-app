@@ -22,6 +22,7 @@ export const API_ENDPOINT_URL = {
   SHARE_LINKS_API: "/api/share-links/",
   MEDIA_API: "api/media/",
   PRESIGNED_UPLOAD_API: "/api/media/presigned-upload/",
+  PUBLIC_ALBUM_API: "/api/public/albums/",
 };
 
 export const ROUTES = {

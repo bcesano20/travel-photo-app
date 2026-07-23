@@ -79,7 +79,6 @@ export default function LoginPage() {
             label="Email"
             type="email"
             autoComplete="email"
-            required
             value={loginData.email}
             onChange={handleChange}
             error={formErrors.email}
@@ -93,7 +92,6 @@ export default function LoginPage() {
             label="Contraseña"
             type="password"
             autoComplete="current-password"
-            required
             value={loginData.password}
             onChange={handleChange}
             error={formErrors.password}

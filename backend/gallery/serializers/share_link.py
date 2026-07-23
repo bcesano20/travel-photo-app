@@ -28,7 +28,7 @@ class ShareLinkSerializer(serializers.ModelSerializer):
         read_only_fields = ["token", "created_at"]
 
     def get_url(self, obj):
-        return f"/a/{obj.token}"
+        return f"/gallery/{obj.token}"
 
     def create(self, validated_data):
         password = validated_data.pop("password", "")
