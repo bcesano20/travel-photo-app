@@ -19,9 +19,13 @@ export const REGEXP = {
 export const API_ENDPOINT_URL = {
   REFRESH: "api/auth/token/refresh/",
   ALBUMS_API: "api/albums/",
+  SHARE_LINKS_API: "/api/share-links/",
+  MEDIA_API: "api/media/",
+  PRESIGNED_UPLOAD_API: "/api/media/presigned-upload/",
 };
 
 export const ROUTES = {
   LOGIN: "/login",
   ADMIN: "/admin",
+  ALBUM: "/admin/albums",
 };

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import { API_ENDPOINT_URL, ERROR_MESSAGES } from "@/helpers/constants";
+import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
 import {
   AlbumDataInterface,
   AlbumListItemAPIInterface,
@@ -158,8 +158,7 @@ const AdminDashboard = () => {
         {albums?.map((album) => (
           <Link
             key={album.id}
-            // TODO: Implement the page
-            href={`/admin/albums/${album.id}`}
+            href={`${ROUTES.ALBUM}/${album.id}`}
             className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition hover:shadow-md"
           >
             <div className="aspect-square bg-neutral-100">
