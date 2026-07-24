@@ -36,8 +36,25 @@ const NewAlbumForm = ({ onCreated }: { onCreated: () => void }) => {
     setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
+  const isValidForm = (): boolean => {
+    const errors: AlbumFormErrors = {};
+
+    if (!albumData.name) {
+      errors.name = ERROR_MESSAGES.FIELD_REQUIRED;
+    }
+
+    if (albumData.startDate && albumData.endDate && albumData.endDate < albumData.startDate) {
+      errors.endDate = ERROR_MESSAGES.END_DATE_BEFORE_START_DATE;
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isValidForm()) return;
+
     setLoading(true);
     setError(null);
     try {
@@ -64,7 +81,6 @@ const NewAlbumForm = ({ onCreated }: { onCreated: () => void }) => {
         <Input
           name="name"
           label="Nombre"
-          required
           value={albumData.name}
           onChange={handleChange}
           placeholder="Nombre del Album"
@@ -101,7 +117,11 @@ const NewAlbumForm = ({ onCreated }: { onCreated: () => void }) => {
         />
       </div>
       {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-      <Button type="submit" loading={loading}>
+      <Button
+        type="submit"
+        loading={loading}
+        className="bg-orange-400 text-white transition-transform hover:scale-110 hover:bg-orange-500"
+      >
         Crear álbum
       </Button>
     </form>
@@ -116,8 +136,13 @@ const AdminDashboard = () => {
   const loadAlbums = async () => {
     try {
       const data = await apiGet<AlbumListItemAPIInterface[]>(API_ENDPOINT_URL.ALBUMS_API);
+
+      console.log("data: ", data);
+
       setAlbums(data.map(parseAlbumListItem));
     } catch (err) {
+      console.log("error: ", err);
+
       setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.ALBUMS_NOT_LOAD);
     }
   };
@@ -131,8 +156,8 @@ const AdminDashboard = () => {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-neutral-900">Tus álbumes</h1>
-        <Button variant="secondary" onClick={() => setShowForm((v) => !v)}>
+        <h1 className="text-[25px] font-semibold text-white md:text-[30px]">Tus álbumes</h1>
+        <Button variant="primary" onClick={() => setShowForm((v) => !v)}>
           {showForm ? "Cancelar" : "+ Nuevo álbum"}
         </Button>
       </div>

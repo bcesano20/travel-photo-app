@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
   EMAIL_FORMAT_INVALID: "Ingresá un email válido.",
   ALBUMS_NOT_LOAD: "No se pudieron cargar los álbumes.",
   ALBUM_NOT_CREATED: "No se pudo crear el álbum.",
+  END_DATE_BEFORE_START_DATE: "La fecha de fin no puede ser anterior a la fecha de inicio.",
 };
 
 export const REGEXP = {
@@ -19,10 +20,10 @@ export const REGEXP = {
 export const API_ENDPOINT_URL = {
   REFRESH: "api/auth/token/refresh/",
   ALBUMS_API: "api/albums/",
-  SHARE_LINKS_API: "/api/share-links/",
+  SHARE_LINKS_API: "api/share-links/",
   MEDIA_API: "api/media/",
-  PRESIGNED_UPLOAD_API: "/api/media/presigned-upload/",
-  PUBLIC_ALBUM_API: "/api/public/albums/",
+  PRESIGNED_UPLOAD_API: "api/media/presigned-upload/",
+  PUBLIC_ALBUM_API: "api/public/albums/",
 };
 
 export const ROUTES = {

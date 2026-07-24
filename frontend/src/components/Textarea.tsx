@@ -10,7 +10,7 @@ export const Textarea = ({ label, id, error, className, ...props }: TextareaProp
 
   return (
     <div>
-      <label htmlFor={textareaId} className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor={textareaId} className="mb-1 block text-sm font-bold text-gray-700">
         {label}
       </label>
       <textarea

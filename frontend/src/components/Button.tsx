@@ -21,7 +21,13 @@ export const Button = ({
 }: ButtonProps) => {
   return (
     <button
-      className={[variantClass[variant], className].filter(Boolean).join(" ")}
+      className={[
+        variantClass[variant],
+        "cursor-pointer transition-transform hover:scale-110",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       disabled={disabled || loading}
       {...props}
     >
