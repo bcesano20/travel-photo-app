@@ -65,12 +65,14 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-neutral-50 px-4">
+    <main className="bg-foreground flex min-h-screen items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm"
+        className="w-full max-w-sm rounded-2xl border border-neutral-200 bg-white p-8 shadow-md"
       >
-        <h1 className="mb-6 text-xl font-semibold text-neutral-900">Iniciar sesión</h1>
+        <h1 className="text-foreground mb-6 text-[28px] font-semibold md:text-[38px]">
+          Iniciar Sesión
+        </h1>
 
         <div className="mb-4">
           <Input
@@ -82,6 +84,7 @@ export default function LoginPage() {
             value={loginData.email}
             onChange={handleChange}
             error={formErrors.email}
+            className="shadow-xl"
           />
         </div>
 
@@ -95,6 +98,7 @@ export default function LoginPage() {
             value={loginData.password}
             onChange={handleChange}
             error={formErrors.password}
+            className="shadow-xl"
           />
         </div>
 

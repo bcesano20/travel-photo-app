@@ -179,14 +179,14 @@ const AlbumDetailPage = () => {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-lg font-semibold text-neutral-900">{album.name}</h1>
+        <h1 className="text-[25px] font-bold text-white md:text-[32px]">{album.name}</h1>
         {album.description && <p className="mt-1 text-sm text-neutral-600">{album.description}</p>}
       </div>
 
       <ShareLinkPanel albumId={album.id} />
 
       <div className="mt-8 mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-neutral-900">Fotos y videos</h2>
+        <h2 className="text-[25px] font-semibold text-white md:text-[30px]">Fotos y videos</h2>
         <div>
           <div className="hidden">
             <Input

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "@/helpers/constants";
 import { logout } from "@/helpers/auth";
 import RequireAuth from "@/components/RequireAuth";
+import { Button } from "@/components";
 
 const AdminLayout = ({ children }: PropsWithChildren) => {
   const router = useRouter();
@@ -17,16 +18,18 @@ const AdminLayout = ({ children }: PropsWithChildren) => {
 
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-neutral-50">
-        <header className="border-b border-neutral-200 bg-white">
+      <div className="bg-foreground min-h-screen">
+        <header className="border-b border-neutral-200 bg-sky-100">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-            <span className="text-sm font-semibold text-neutral-900">Trip Gallery — Panel</span>
-            <button
+            <span className="text-foreground text-[18px] font-semibold md:text-[30px]">
+              Galeria de Viajes — Panel
+            </span>
+            <Button
               onClick={handleLogout}
-              className="text-sm text-neutral-500 hover:text-neutral-900"
+              className="rounded-[30px] bg-red-800 text-sm text-white transition-transform hover:scale-110"
             >
               Cerrar sesión
-            </button>
+            </Button>
           </div>
         </header>
         <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
