@@ -4,145 +4,43 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
-import {
-  AlbumDataInterface,
-  AlbumListItemAPIInterface,
-  AlbumListItemInterface,
-} from "@/helpers/interfaces";
+import { AlbumListItemAPIInterface, AlbumListItemInterface } from "@/helpers/interfaces";
 import { parseAlbumListItem } from "@/helpers/apiParsers";
-import { ApiError, apiGet, apiPost } from "@/helpers/apiHelper";
-import { Button, Input, Textarea } from "@/components";
+import { ApiError, apiDelete, apiGet } from "@/helpers/apiHelper";
+import { Button, EditAlbumModal, NewAlbumModal } from "@/components";
 
-const ALBUM_DATA_DEFAULT: AlbumDataInterface = {
-  name: "",
-  description: "",
-  startDate: "",
-  endDate: "",
-};
+const PencilIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M16.862 4.487a2.06 2.06 0 0 1 2.915 2.914L8.5 18.678l-4 1 1-4Z"
+    />
+  </svg>
+);
 
-type AlbumFormErrors = Partial<Record<keyof AlbumDataInterface, string>>;
-
-const NewAlbumForm = ({ onCreated }: { onCreated: () => void }) => {
-  const [albumData, setAlbumData] = useState<AlbumDataInterface>(ALBUM_DATA_DEFAULT);
-  const [formErrors, setFormErrors] = useState<AlbumFormErrors>({});
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-
-    setAlbumData((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
-  };
-
-  const isValidForm = (): boolean => {
-    const errors: AlbumFormErrors = {};
-
-    if (!albumData.name) {
-      errors.name = ERROR_MESSAGES.FIELD_REQUIRED;
-    }
-
-    if (albumData.startDate && albumData.endDate && albumData.endDate < albumData.startDate) {
-      errors.endDate = ERROR_MESSAGES.END_DATE_BEFORE_START_DATE;
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isValidForm()) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      await apiPost(API_ENDPOINT_URL.ALBUMS_API, {
-        name: albumData.name,
-        description: albumData.description,
-        start_date: albumData.startDate || null,
-        end_date: albumData.endDate || null,
-      });
-      onCreated();
-    } catch {
-      setError(ERROR_MESSAGES.ALBUM_NOT_CREATED);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="mb-6 rounded-xl border border-neutral-200 bg-white p-4"
-    >
-      <div className="mb-3">
-        <Input
-          name="name"
-          label="Nombre"
-          value={albumData.name}
-          onChange={handleChange}
-          placeholder="Nombre del Album"
-          error={formErrors.name}
-        />
-      </div>
-      <div className="mb-3">
-        <Textarea
-          name="description"
-          label="Descripción"
-          value={albumData.description}
-          onChange={handleChange}
-          placeholder="Contanos sobre este viaje..."
-          rows={2}
-          error={formErrors.description}
-        />
-      </div>
-      <div className="mb-3 grid grid-cols-2 gap-3">
-        <Input
-          name="startDate"
-          label="Desde"
-          type="date"
-          value={albumData.startDate}
-          onChange={handleChange}
-          error={formErrors.startDate}
-        />
-        <Input
-          name="endDate"
-          label="Hasta"
-          type="date"
-          value={albumData.endDate}
-          onChange={handleChange}
-          error={formErrors.endDate}
-        />
-      </div>
-      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-      <Button
-        type="submit"
-        loading={loading}
-        className="bg-orange-400 text-white transition-transform hover:scale-110 hover:bg-orange-500"
-      >
-        Crear álbum
-      </Button>
-    </form>
-  );
-};
+const TrashIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 7h16M9 7V4h6v3m-7 0 .8 12.8A2 2 0 0 0 10.79 20h2.42a2 2 0 0 0 2-1.99L16 7"
+    />
+  </svg>
+);
 
 const AdminDashboard = () => {
   const [albums, setAlbums] = useState<AlbumListItemInterface[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState<boolean>(false);
+  const [editingAlbumId, setEditingAlbumId] = useState<number | null>(null);
 
   const loadAlbums = async () => {
     try {
       const data = await apiGet<AlbumListItemAPIInterface[]>(API_ENDPOINT_URL.ALBUMS_API);
 
-      console.log("data: ", data);
-
       setAlbums(data.map(parseAlbumListItem));
     } catch (err) {
-      console.log("error: ", err);
-
       setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.ALBUMS_NOT_LOAD);
     }
   };
@@ -153,23 +51,43 @@ const AdminDashboard = () => {
     })();
   }, []);
 
+  const handleDelete = async (album: AlbumListItemInterface) => {
+    if (!window.confirm(`¿Eliminar el álbum "${album.name}"?`)) return;
+
+    try {
+      await apiDelete(`${API_ENDPOINT_URL.ALBUMS_API}${album.id}/`);
+      loadAlbums();
+    } catch {
+      setError(ERROR_MESSAGES.ALBUM_NOT_DELETED);
+    }
+  };
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-[25px] font-semibold text-white md:text-[30px]">Tus álbumes</h1>
-        <Button variant="primary" onClick={() => setShowForm((v) => !v)}>
-          {showForm ? "Cancelar" : "+ Nuevo álbum"}
+        <Button variant="primary" onClick={() => setShowForm(true)}>
+          + Nuevo álbum
         </Button>
       </div>
 
-      {showForm && (
-        <NewAlbumForm
-          onCreated={() => {
-            setShowForm(false);
-            loadAlbums();
-          }}
-        />
-      )}
+      <NewAlbumModal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        onCreated={() => {
+          setShowForm(false);
+          loadAlbums();
+        }}
+      />
+
+      <EditAlbumModal
+        albumId={editingAlbumId}
+        onClose={() => setEditingAlbumId(null)}
+        onUpdated={() => {
+          setEditingAlbumId(null);
+          loadAlbums();
+        }}
+      />
 
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
@@ -200,11 +118,39 @@ const AdminDashboard = () => {
                 </div>
               )}
             </div>
-            <div className="p-3">
-              <p className="truncate text-sm font-medium text-neutral-900">{album.name}</p>
-              <p className="text-xs text-neutral-500">
-                {album.mediaCount} {album.mediaCount === 1 ? "archivo" : "archivos"}
-              </p>
+            <div className="flex items-start justify-between gap-2 p-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-neutral-900">{album.name}</p>
+                <p className="text-xs text-neutral-500">
+                  {album.mediaCount} {album.mediaCount === 1 ? "archivo" : "archivos"}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setEditingAlbumId(album.id);
+                  }}
+                  aria-label="Editar álbum"
+                  className="cursor-pointer rounded p-1 text-neutral-400 hover:text-neutral-700"
+                >
+                  <PencilIcon />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDelete(album);
+                  }}
+                  aria-label="Eliminar álbum"
+                  className="cursor-pointer rounded p-1 text-neutral-400 hover:text-red-600"
+                >
+                  <TrashIcon />
+                </button>
+              </div>
             </div>
           </Link>
         ))}
