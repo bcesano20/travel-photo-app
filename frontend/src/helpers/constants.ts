@@ -10,6 +10,9 @@ export const ERROR_MESSAGES = {
   EMAIL_FORMAT_INVALID: "Ingresá un email válido.",
   ALBUMS_NOT_LOAD: "No se pudieron cargar los álbumes.",
   ALBUM_NOT_CREATED: "No se pudo crear el álbum.",
+  ALBUM_NOT_UPDATED: "No se pudo actualizar el álbum.",
+  ALBUM_NOT_DELETED: "No se pudo eliminar el álbum.",
+  MEDIA_NOT_DELETED: "No se pudo quitar el archivo del álbum.",
   END_DATE_BEFORE_START_DATE: "La fecha de fin no puede ser anterior a la fecha de inicio.",
 };
 

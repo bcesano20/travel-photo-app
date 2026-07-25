@@ -15,7 +15,7 @@ from celery import shared_task
 from django.utils import timezone
 from PIL import ExifTags, Image, ImageOps
 
-from .models import Media
+from .models import Album, Media
 from .services import build_thumbnail_key, download_object, upload_bytes
 
 THUMBNAIL_MAX_SIZE = (800, 800)
@@ -149,6 +149,9 @@ def generate_thumbnail(self, media_id: int) -> None:
             _process_video(media)
         media.processing_status = Media.STATUS_READY
         media.save()
+
+        # First photo/video to finish processing becomes the album cover.
+        Album.objects.filter(pk=media.album_id, cover__isnull=True).update(cover=media)
     except Exception:
         # Only mark it as a hard error once retries are exhausted — earlier
         # failures are just transient blips autoretry_for will retry.

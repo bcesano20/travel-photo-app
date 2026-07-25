@@ -2,17 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 import {
   AlbumDetailAPIInterface,
   AlbumDetailInterface,
   MediaAPIInterface,
+  MediaInterface,
   ShareLinkAPIInterface,
   ShareLinkInterface,
 } from "@/helpers/interfaces";
 import { parseAlbumDetail, parseMedia, parseShareLink } from "@/helpers/apiParsers";
-import { ApiError, apiGet, apiPatch, apiPost } from "@/helpers/apiHelper";
-import { API_ENDPOINT_URL, ERROR_MESSAGES } from "@/helpers/constants";
+import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from "@/helpers/apiHelper";
+import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
 import { Button, Input } from "@/components";
 
 interface UploadItem {
@@ -21,6 +23,18 @@ interface UploadItem {
   status: "uploading" | "confirming" | "done" | "error";
   error?: string;
 }
+
+const XIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    className="h-3.5 w-3.5"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6 6 18" />
+  </svg>
+);
 
 const ShareLinkPanel = ({ albumId }: { albumId: number }) => {
   const [link, setLink] = useState<ShareLinkInterface | null | undefined>(undefined);
@@ -93,6 +107,7 @@ const AlbumDetailPage = () => {
 
   const [album, setAlbum] = useState<AlbumDetailInterface | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -173,14 +188,33 @@ const AlbumDetailPage = () => {
     }
   };
 
+  const handleRemoveMedia = async (item: MediaInterface) => {
+    if (!window.confirm("¿Quitar este archivo del álbum?")) return;
+
+    setMediaError(null);
+    try {
+      await apiDelete(`${API_ENDPOINT_URL.MEDIA_API}${item.id}/`);
+      loadAlbum();
+    } catch {
+      setMediaError(ERROR_MESSAGES.MEDIA_NOT_DELETED);
+    }
+  };
+
   if (error) return <p className="text-sm text-red-600">{error}</p>;
-  if (!album) return <p className="text-sm text-neutral-500">Cargando...</p>;
+  if (!album) return <p className="text-[32px] text-white">Cargando...</p>;
 
   return (
     <div>
+      <Link
+        href={ROUTES.ADMIN}
+        className="mb-4 inline-block text-sm text-neutral-300 hover:text-white"
+      >
+        <Button>← Volver</Button>
+      </Link>
+
       <div className="mb-6">
         <h1 className="text-[25px] font-bold text-white md:text-[32px]">{album.name}</h1>
-        {album.description && <p className="mt-1 text-sm text-neutral-600">{album.description}</p>}
+        {album.description && <p className="mt-1 text-sm text-white">{album.description}</p>}
       </div>
 
       <ShareLinkPanel albumId={album.id} />
@@ -212,12 +246,17 @@ const AlbumDetailPage = () => {
         </ul>
       )}
 
+      {mediaError && <p className="mb-4 text-sm text-red-600">{mediaError}</p>}
+
       {album.media.length === 0 ? (
-        <p className="text-sm text-neutral-500">Todavía no hay fotos ni videos en este álbum.</p>
+        <p className="text-sm text-white">Todavía no hay fotos ni videos en este álbum.</p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {album.media.map((item) => (
-            <div key={item.id} className="aspect-square overflow-hidden rounded-lg bg-neutral-100">
+            <div
+              key={item.id}
+              className="group relative aspect-square overflow-hidden rounded-lg bg-neutral-100"
+            >
               {item.processingStatus === "ready" && item.thumbnailUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -234,6 +273,15 @@ const AlbumDetailPage = () => {
                   Procesando...
                 </div>
               )}
+
+              <button
+                type="button"
+                onClick={() => handleRemoveMedia(item)}
+                aria-label="Quitar del álbum"
+                className="absolute top-1.5 right-1.5 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/80"
+              >
+                <XIcon />
+              </button>
             </div>
           ))}
         </div>
