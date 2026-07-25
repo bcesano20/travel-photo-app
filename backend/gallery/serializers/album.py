@@ -9,7 +9,7 @@ from .media import MediaSerializer
 class AlbumListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for the album list in the private admin panel."""
 
-    media_count = serializers.IntegerField(source="media.count", read_only=True)
+    media_count = serializers.SerializerMethodField()
     cover_thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -25,6 +25,9 @@ class AlbumListSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
+    def get_media_count(self, obj):
+        return obj.media.filter(deleted_at__isnull=True).count()
+
     def get_cover_thumbnail_url(self, obj):
         if obj.cover and obj.cover.thumbnail_key:
             return generate_presigned_download_url(obj.cover.thumbnail_key)
@@ -34,7 +37,7 @@ class AlbumListSerializer(serializers.ModelSerializer):
 class AlbumDetailSerializer(serializers.ModelSerializer):
     """Full serializer: album + its media, used by both the admin panel and the public gallery."""
 
-    media = MediaSerializer(many=True, read_only=True)
+    media = serializers.SerializerMethodField()
 
     class Meta:
         model = Album
@@ -50,3 +53,7 @@ class AlbumDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+    def get_media(self, obj):
+        media_qs = obj.media.filter(deleted_at__isnull=True)
+        return MediaSerializer(media_qs, many=True, context=self.context).data
