@@ -30,6 +30,13 @@ class ShareLinkSerializer(serializers.ModelSerializer):
     def get_url(self, obj):
         return f"/gallery/{obj.token}"
 
+    def validate_album(self, value):
+        if value.parent_id is not None:
+            raise serializers.ValidationError(
+                "Los sub-álbumes no tienen enlace propio — compartí el álbum principal."
+            )
+        return value
+
     def create(self, validated_data):
         password = validated_data.pop("password", "")
         instance = ShareLink(**validated_data)

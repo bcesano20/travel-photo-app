@@ -22,9 +22,10 @@ interface NewAlbumModalProps {
   open: boolean;
   onClose: () => void;
   onCreated: () => void;
+  parentId?: number;
 }
 
-export const NewAlbumModal = ({ open, onClose, onCreated }: NewAlbumModalProps) => {
+export const NewAlbumModal = ({ open, onClose, onCreated, parentId }: NewAlbumModalProps) => {
   const [albumData, setAlbumData] = useState<AlbumDataInterface>(ALBUM_DATA_DEFAULT);
   const [formErrors, setFormErrors] = useState<AlbumFormErrors>({});
 
@@ -72,6 +73,7 @@ export const NewAlbumModal = ({ open, onClose, onCreated }: NewAlbumModalProps) 
         description: albumData.description,
         start_date: albumData.startDate || null,
         end_date: albumData.endDate || null,
+        parent: parentId ?? null,
       });
       setAlbumData(ALBUM_DATA_DEFAULT);
       onCreated();
@@ -88,7 +90,9 @@ export const NewAlbumModal = ({ open, onClose, onCreated }: NewAlbumModalProps) 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-foreground text-[28px] font-semibold md:text-[38px]">Nuevo álbum</h2>
+          <h2 className="text-foreground text-[28px] font-semibold md:text-[38px]">
+            {parentId ? "Nuevo sub-álbum" : "Nuevo álbum"}
+          </h2>
           <button
             type="button"
             onClick={handleClose}

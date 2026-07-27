@@ -10,6 +10,16 @@ class Album(models.Model):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
 
+    # Sub-albums, one level deep only (enforced in the serializer, not here —
+    # a child's own `children` queryset is simply always empty in practice).
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children",
+    )
+
     # Referenced as a string because Media is defined in another module
     # (avoids a circular import between the two model files).
     cover = models.ForeignKey(
