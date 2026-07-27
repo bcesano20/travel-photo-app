@@ -27,6 +27,34 @@ const CenteredMessage = ({ children }: PropsWithChildren) => {
   );
 };
 
+const MediaGrid = ({
+  media,
+  offset,
+  onSelect,
+}: {
+  media: MediaInterface[];
+  offset: number;
+  onSelect: (index: number) => void;
+}) => (
+  <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
+    {media.map((item, idx) => (
+      <button
+        key={item.id}
+        onClick={() => onSelect(offset + idx)}
+        className="relative aspect-square overflow-hidden rounded-md bg-neutral-100"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.thumbnailUrl ?? undefined} alt="" className="h-full w-full object-cover" />
+        {item.type === "video" && (
+          <span className="absolute inset-0 flex items-center justify-center text-2xl text-white drop-shadow">
+            ▶
+          </span>
+        )}
+      </button>
+    ))}
+  </div>
+);
+
 const Lightbox = ({
   items,
   index,
@@ -172,6 +200,21 @@ const PublicGalleryPage = () => {
   const { album } = state;
   const readyMedia = album.media.filter((m) => m.processingStatus === "ready");
 
+  // Sub-albums render as their own labeled section below the parent's own
+  // photos, but everything shares one continuous lightbox — offsets map each
+  // section's local index into the flattened list so arrow-key nav flows
+  // seamlessly from one section into the next.
+  const childSections = album.children.reduce<
+    { id: number; name: string; media: MediaInterface[]; offset: number }[]
+  >((sections, child) => {
+    const media = child.media.filter((m) => m.processingStatus === "ready");
+    const previous = sections[sections.length - 1];
+    const offset = previous ? previous.offset + previous.media.length : readyMedia.length;
+    return [...sections, { id: child.id, name: child.name, media, offset }];
+  }, []);
+
+  const allMedia = [...readyMedia, ...childSections.flatMap((section) => section.media)];
+
   return (
     <main className="min-h-screen bg-neutral-50">
       <header className="border-b border-neutral-200 bg-white px-4 py-8 text-center">
@@ -182,38 +225,36 @@ const PublicGalleryPage = () => {
       </header>
 
       <div className="mx-auto max-w-5xl px-2 py-6">
-        {readyMedia.length === 0 ? (
+        {allMedia.length === 0 ? (
           <p className="text-center text-sm text-neutral-500">
             Todavía no hay fotos en este álbum.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4">
-            {readyMedia.map((item, idx) => (
-              <button
-                key={item.id}
-                onClick={() => setLightboxIndex(idx)}
-                className="relative aspect-square overflow-hidden rounded-md bg-neutral-100"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={item.thumbnailUrl ?? undefined}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-                {item.type === "video" && (
-                  <span className="absolute inset-0 flex items-center justify-center text-2xl text-white drop-shadow">
-                    ▶
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+          <>
+            {readyMedia.length > 0 && (
+              <MediaGrid media={readyMedia} offset={0} onSelect={setLightboxIndex} />
+            )}
+
+            {childSections.map(
+              (section) =>
+                section.media.length > 0 && (
+                  <div key={section.id} className="mt-10">
+                    <h2 className="mb-3 text-sm font-semibold text-neutral-900">{section.name}</h2>
+                    <MediaGrid
+                      media={section.media}
+                      offset={section.offset}
+                      onSelect={setLightboxIndex}
+                    />
+                  </div>
+                ),
+            )}
+          </>
         )}
       </div>
 
       {lightboxIndex !== null && (
         <Lightbox
-          items={readyMedia}
+          items={allMedia}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onIndexChange={setLightboxIndex}

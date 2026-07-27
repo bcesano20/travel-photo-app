@@ -80,8 +80,11 @@ export interface AlbumDetailAPIInterface {
   description: string;
   start_date: string | null;
   end_date: string | null;
+  parent: number | null;
   cover: number | null;
+  cover_thumbnail_url: string | null;
   media: MediaAPIInterface[];
+  children: AlbumDetailAPIInterface[];
   created_at: string;
   updated_at: string;
 }
@@ -93,8 +96,11 @@ export interface AlbumDetailInterface {
   description: string;
   startDate: string | null;
   endDate: string | null;
+  parent: number | null;
   cover: number | null;
+  coverThumbnailUrl: string | null;
   media: MediaInterface[];
+  children: AlbumDetailInterface[];
   createdAt: string;
   updatedAt: string;
 }

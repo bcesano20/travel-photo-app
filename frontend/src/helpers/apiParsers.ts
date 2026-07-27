@@ -52,8 +52,11 @@ export function parseAlbumDetail(album: AlbumDetailAPIInterface): AlbumDetailInt
     description: album.description,
     startDate: album.start_date,
     endDate: album.end_date,
+    parent: album.parent,
     cover: album.cover,
+    coverThumbnailUrl: album.cover_thumbnail_url,
     media: album.media.map(parseMedia),
+    children: album.children.map(parseAlbumDetail),
     createdAt: album.created_at,
     updatedAt: album.updated_at,
   };

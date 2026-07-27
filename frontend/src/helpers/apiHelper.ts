@@ -15,7 +15,7 @@ async function doFetch(
   token: string | null,
   options: RequestInit,
 ): Promise<Response> {
-  return fetch(`${API_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
+  return fetch(`${(API_URL ?? "").replace(/\/$/, "")}/${path.replace(/^\//, "")}`, {
     ...options,
     headers: {
       ...(options.body ? { "Content-Type": "application/json" } : {}),
