@@ -7,3 +7,10 @@
 
 [phases.setup]
 aptPkgs = ["...", "ffmpeg"]
+
+# Compiles static files (Django admin's CSS/JS) into STATIC_ROOT so
+# whitenoise has something to serve once DEBUG=False. Needs SECRET_KEY
+# and the rest of the env vars available at build time — Railway provides
+# the service's variables during the build, so this works without changes.
+[phases.build]
+cmds = ["python manage.py collectstatic --noinput"]
