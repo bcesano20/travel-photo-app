@@ -1,0 +1,9 @@
+# Railway's default build (Nixpacks) doesn't include ffmpeg, which the
+# Celery worker needs for video thumbnails/duration extraction. This adds
+# it as a system package during the build's setup phase.
+#
+# "..." keeps whatever Nixpacks would have installed by default and adds
+# ffmpeg on top of it, instead of replacing the list entirely.
+
+[phases.setup]
+aptPkgs = ["...", "ffmpeg"]
