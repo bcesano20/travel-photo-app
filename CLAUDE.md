@@ -41,10 +41,6 @@ Each platform is configured to build only from its subfolder. Keep this separati
 - All backend model/field names, function/variable names, folder names, and code comments are in **English** (`name`, `size`, `created_at`, `deleted_at`, `taken_at`, `ShareLink`, etc.). Keep this consistent across new models, serializers, API field names, and frontend code (components, hooks, variables, comments) — this applies to both `/backend` and `/frontend`.
 - **User-facing content is in Spanish.** This means actual data the owner creates and visitors see: album names/titles, descriptions, UI copy/labels rendered on screen, error messages shown to the user, button text, etc. This is *data and UI text*, not code — e.g. an `Album.name` value like `"Viaje a Bariloche"` is completely normal and expected; the field is called `name` (English), but what the owner types into it is Spanish.
 
-## Planned next steps (not yet built)
-
-Roughly in order: DRF viewsets + URL routing for `Album`/`Media`/`ShareLink`; the presigned-upload endpoint; the Celery/Redis worker for thumbnail generation + EXIF extraction (Pillow for photos, ffmpeg for video); the public token-validated read endpoint for share links; Django migrations; then the Next.js side (private admin panel, public gallery view at `/a/:token`).
-
 ## Deployment targets
 
 - **Frontend:** Vercel, Hobby (free) tier — non-commercial only. Media assets are expected to load from the Cloudflare CDN domain directly, not through Vercel's own bandwidth.
