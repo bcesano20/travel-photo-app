@@ -157,6 +157,7 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     env("FRONTEND_URL", default="http://localhost:3000"),
 ]
+CORS_PREFLIGHT_MAX_AGE = 600 # How long (seconds) browsers may cache the preflight (OPTIONS) response.
 
 # Celery (broker + result backend both point at Redis)
 CELERY_BROKER_URL = env("REDIS_URL", default="redis://localhost:6379/0")
