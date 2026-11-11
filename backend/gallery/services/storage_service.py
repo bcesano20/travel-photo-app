@@ -5,6 +5,7 @@ keys, and URLs, so it's easy to swap providers later if needed.
 """
 
 import uuid
+from functools import lru_cache
 from pathlib import Path
 
 import boto3
@@ -14,7 +15,13 @@ from django.conf import settings
 PRESIGNED_EXPIRES_IN = 60 * 15  # 15 minutes — enough for a slow upload to start
 
 
+@lru_cache(maxsize=1)
 def get_r2_client():
+    # Building a boto3 client is expensive (it loads the service model and
+    # sets up the HTTP session), and the serializers sign up to two URLs per
+    # media item. The client is thread-safe and holds no per-request state,
+    # so we build it once per process and reuse it. Signing URLs is a purely
+    # local computation, so a shared client adds no network calls.
     return boto3.client(
         "s3",
         endpoint_url=f"https://{settings.R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
