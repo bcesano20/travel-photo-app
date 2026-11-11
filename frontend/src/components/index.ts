@@ -4,6 +4,16 @@ import { Button } from "./Button";
 import { Textarea } from "./Textarea";
 import { NewAlbumModal } from "./NewAlbumModal";
 import { EditAlbumModal } from "./EditAlbumModal";
+import { QueryProvider } from "./QueryProvider";
 import Footer from "./Footer";
 
-export { RequireAuth, Input, Button, Textarea, NewAlbumModal, EditAlbumModal, Footer };
+export {
+  RequireAuth,
+  Input,
+  Button,
+  Textarea,
+  NewAlbumModal,
+  EditAlbumModal,
+  QueryProvider,
+  Footer,
+};
