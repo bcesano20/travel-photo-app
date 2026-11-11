@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
-import { AlbumListItemAPIInterface, AlbumListItemInterface } from "@/helpers/interfaces";
-import { parseAlbumListItem } from "@/helpers/apiParsers";
-import { ApiError, apiDelete, apiGet } from "@/helpers/apiHelper";
+import { AlbumListItemInterface } from "@/helpers/interfaces";
+import { ApiError, apiDelete } from "@/helpers/apiHelper";
+import { albumKeys, prefetchAlbumDetail, useAlbumList } from "@/hooks";
 import { Button, EditAlbumModal, NewAlbumModal } from "@/components";
 
 const PencilIcon = () => (
@@ -30,35 +31,32 @@ const TrashIcon = () => (
 );
 
 const AdminDashboard = () => {
-  const [albums, setAlbums] = useState<AlbumListItemInterface[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { data: albums, error: loadError } = useAlbumList();
+  const [actionError, setActionError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState<boolean>(false);
   const [editingAlbumId, setEditingAlbumId] = useState<number | null>(null);
 
-  const loadAlbums = async () => {
-    try {
-      const data = await apiGet<AlbumListItemAPIInterface[]>(API_ENDPOINT_URL.ALBUMS_API);
+  const error =
+    actionError ??
+    (loadError
+      ? loadError instanceof ApiError
+        ? loadError.message
+        : ERROR_MESSAGES.ALBUMS_NOT_LOAD
+      : null);
 
-      setAlbums(data.map(parseAlbumListItem));
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.ALBUMS_NOT_LOAD);
-    }
-  };
-
-  useEffect(() => {
-    (async () => {
-      await loadAlbums();
-    })();
-  }, []);
+  // Marks every cached album query as stale; the ones on screen refetch now.
+  const loadAlbums = () => queryClient.invalidateQueries({ queryKey: albumKeys.all });
 
   const handleDelete = async (album: AlbumListItemInterface) => {
     if (!window.confirm(`¿Eliminar el álbum "${album.name}"?`)) return;
 
+    setActionError(null);
     try {
       await apiDelete(`${API_ENDPOINT_URL.ALBUMS_API}${album.id}/`);
       loadAlbums();
     } catch {
-      setError(ERROR_MESSAGES.ALBUM_NOT_DELETED);
+      setActionError(ERROR_MESSAGES.ALBUM_NOT_DELETED);
     }
   };
 
@@ -91,9 +89,9 @@ const AdminDashboard = () => {
 
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
-      {albums === null && !error && <p className="text-sm text-neutral-500">Cargando...</p>}
+      {albums === undefined && !error && <p className="text-sm text-neutral-500">Cargando...</p>}
 
-      {albums !== null && albums.length === 0 && (
+      {albums !== undefined && albums.length === 0 && (
         <p className="text-sm text-neutral-500">Todavía no creaste ningún álbum.</p>
       )}
 
@@ -102,6 +100,8 @@ const AdminDashboard = () => {
           <Link
             key={album.id}
             href={`${ROUTES.ALBUM}/${album.id}`}
+            onMouseEnter={() => prefetchAlbumDetail(queryClient, album.id)}
+            onFocus={() => prefetchAlbumDetail(queryClient, album.id)}
             className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition hover:shadow-md"
           >
             <div className="aspect-square bg-neutral-100">
@@ -110,6 +110,8 @@ const AdminDashboard = () => {
                 <img
                   src={album.coverThumbnailUrl}
                   alt={album.name}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               ) : (

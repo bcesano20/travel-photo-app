@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { API_ENDPOINT_URL, ERROR_MESSAGES } from "@/helpers/constants";
-import { AlbumAdminDetailAPIInterface, AlbumDataInterface } from "@/helpers/interfaces";
-import { parseAlbumAdminDetail } from "@/helpers/apiParsers";
-import { apiGet, apiPatch } from "@/helpers/apiHelper";
+import { AlbumDataInterface } from "@/helpers/interfaces";
+import { queryAlbumDetail } from "@/hooks";
+import { apiPatch } from "@/helpers/apiHelper";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { Textarea } from "./Textarea";
@@ -26,6 +27,7 @@ interface EditAlbumModalProps {
 }
 
 export const EditAlbumModal = ({ albumId, onClose, onUpdated }: EditAlbumModalProps) => {
+  const queryClient = useQueryClient();
   const [albumData, setAlbumData] = useState<AlbumDataInterface>(ALBUM_DATA_DEFAULT);
   const [formErrors, setFormErrors] = useState<AlbumFormErrors>({});
 
@@ -40,10 +42,9 @@ export const EditAlbumModal = ({ albumId, onClose, onUpdated }: EditAlbumModalPr
       setLoadingAlbum(true);
       setError(null);
       try {
-        const data = await apiGet<AlbumAdminDetailAPIInterface>(
-          `${API_ENDPOINT_URL.ALBUMS_API}${albumId}/`,
-        );
-        const album = parseAlbumAdminDetail(data);
+        // Reuses the cached album when it is still fresh (e.g. the detail page
+        // just loaded it) and fetches otherwise.
+        const album = await queryAlbumDetail(queryClient, albumId);
         setAlbumData({
           name: album.name,
           description: album.description,
@@ -56,7 +57,7 @@ export const EditAlbumModal = ({ albumId, onClose, onUpdated }: EditAlbumModalPr
         setLoadingAlbum(false);
       }
     })();
-  }, [albumId]);
+  }, [albumId, queryClient]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

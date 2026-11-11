@@ -44,7 +44,13 @@ const MediaGrid = ({
         className="relative aspect-square overflow-hidden rounded-md bg-neutral-100"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.thumbnailUrl ?? undefined} alt="" className="h-full w-full object-cover" />
+        <img
+          src={item.thumbnailUrl ?? undefined}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover"
+        />
         {item.type === "video" && (
           <span className="absolute inset-0 flex items-center justify-center text-2xl text-white drop-shadow">
             ▶
