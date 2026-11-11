@@ -29,6 +29,12 @@ export const API_ENDPOINT_URL = {
   PUBLIC_ALBUM_API: "api/public/albums/",
 };
 
+export const QUERY_STALE_TIME_MS = 10 * 60 * 1000; // how long cached data is reused without refetching. Reusing it keeps the same URLs, so the browser's image cache works across visits.
+export const QUERY_GC_TIME_MS = 14 * 60 * 1000; // how long unused data is kept at all. It must stay below the URL lifetime, otherwise a stale cache could show images with expired URLs.
+
+// How often an album is refetched while some of its files are still processing.
+export const PENDING_MEDIA_POLL_INTERVAL_MS = 3000;
+
 export const ROUTES = {
   LOGIN: "/login",
   ADMIN: "/admin",

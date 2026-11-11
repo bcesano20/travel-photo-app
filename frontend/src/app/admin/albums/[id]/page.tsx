@@ -1,21 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
+import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
 import {
-  AlbumAdminDetailAPIInterface,
   AlbumAdminDetailInterface,
   AlbumChildInterface,
   MediaAPIInterface,
   MediaInterface,
-  ShareLinkAPIInterface,
-  ShareLinkInterface,
 } from "@/helpers/interfaces";
-import { parseAlbumAdminDetail, parseMedia, parseShareLink } from "@/helpers/apiParsers";
-import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from "@/helpers/apiHelper";
-import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
+import { parseMedia } from "@/helpers/apiParsers";
+import { ApiError, apiDelete, apiPatch, apiPost } from "@/helpers/apiHelper";
+import { albumKeys, prefetchAlbumDetail, useActiveShareLink, useAlbumDetail } from "@/hooks";
 import { Button, EditAlbumModal, Input, NewAlbumModal } from "@/components";
 
 interface UploadItem {
@@ -64,6 +63,7 @@ const SubAlbumsSection = ({
   album: AlbumAdminDetailInterface;
   onChanged: () => void;
 }) => {
+  const queryClient = useQueryClient();
   const [showNewSubAlbum, setShowNewSubAlbum] = useState<boolean>(false);
   const [editingChildId, setEditingChildId] = useState<number | null>(null);
   const [childError, setChildError] = useState<string | null>(null);
@@ -116,6 +116,8 @@ const SubAlbumsSection = ({
             <Link
               key={child.id}
               href={`${ROUTES.ALBUM}/${child.id}`}
+              onMouseEnter={() => prefetchAlbumDetail(queryClient, child.id)}
+              onFocus={() => prefetchAlbumDetail(queryClient, child.id)}
               className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition hover:shadow-md"
             >
               <div className="aspect-square bg-neutral-100">
@@ -124,6 +126,8 @@ const SubAlbumsSection = ({
                   <img
                     src={child.coverThumbnailUrl}
                     alt={child.name}
+                    loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -175,21 +179,12 @@ const SubAlbumsSection = ({
 };
 
 const ShareLinkPanel = ({ albumId }: { albumId: number }) => {
-  const [link, setLink] = useState<ShareLinkInterface | null | undefined>(undefined);
+  const queryClient = useQueryClient();
+  // undefined while loading, null when the album has no active link.
+  const { data: link } = useActiveShareLink(albumId);
   const [copied, setCopied] = useState<boolean>(false);
 
-  const loadLink = useCallback(async () => {
-    const links = await apiGet<ShareLinkAPIInterface[]>(
-      `${API_ENDPOINT_URL.SHARE_LINKS_API}?album=${albumId}`,
-    );
-    setLink(links.map(parseShareLink).find((l) => l.isActive) ?? null);
-  }, [albumId]);
-
-  useEffect(() => {
-    (async () => {
-      await loadLink();
-    })();
-  }, [loadLink]);
+  const loadLink = () => queryClient.invalidateQueries({ queryKey: albumKeys.shareLink(albumId) });
 
   const handleCreate = async () => {
     await apiPost(API_ENDPOINT_URL.SHARE_LINKS_API, { album: albumId });
@@ -243,37 +238,23 @@ const AlbumDetailPage = () => {
   const params = useParams<{ id: string }>();
   const albumId = params.id;
 
-  const [album, setAlbum] = useState<AlbumAdminDetailInterface | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  // Cached across visits; polls on its own while any media is still "pending"
+  // so thumbnails pop in once the worker finishes (see useAlbumDetail).
+  const { data: album, error: loadError } = useAlbumDetail(albumId);
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadAlbum = useCallback(async () => {
-    try {
-      const data = await apiGet<AlbumAdminDetailAPIInterface>(
-        `${API_ENDPOINT_URL.ALBUMS_API}${albumId}/`,
-      );
-      setAlbum(parseAlbumAdminDetail(data));
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.ALBUMS_NOT_LOAD);
-    }
-  }, [albumId]);
+  // Marks every cached album query as stale (this album, its parent, the
+  // dashboard list); the ones on screen refetch right away.
+  const loadAlbum = () => queryClient.invalidateQueries({ queryKey: albumKeys.all });
 
-  useEffect(() => {
-    (async () => {
-      await loadAlbum();
-    })();
-  }, [loadAlbum]);
-
-  // While any media is still "pending", poll every few seconds so
-  // thumbnails pop in once the worker finishes, without a manual refresh.
-  useEffect(() => {
-    const hasPending = album?.media.some((m) => m.processingStatus === "pending");
-    if (!hasPending) return;
-    const interval = setInterval(loadAlbum, 3000);
-    return () => clearInterval(interval);
-  }, [album, loadAlbum]);
+  const error = loadError
+    ? loadError instanceof ApiError
+      ? loadError.message
+      : ERROR_MESSAGES.ALBUMS_NOT_LOAD
+    : null;
 
   const handleFilesSelected = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -400,6 +381,8 @@ const AlbumDetailPage = () => {
                 <img
                   src={item.thumbnailUrl}
                   alt={item.originalFilename}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               ) : item.processingStatus === "error" ? (
