@@ -1,4 +1,8 @@
 import {
+  AlbumAdminDetailAPIInterface,
+  AlbumAdminDetailInterface,
+  AlbumChildAPIInterface,
+  AlbumChildInterface,
   AlbumDetailAPIInterface,
   AlbumDetailInterface,
   AlbumListItemAPIInterface,
@@ -57,6 +61,43 @@ export function parseAlbumDetail(album: AlbumDetailAPIInterface): AlbumDetailInt
     coverThumbnailUrl: album.cover_thumbnail_url,
     media: album.media.map(parseMedia),
     children: album.children.map(parseAlbumDetail),
+    createdAt: album.created_at,
+    updatedAt: album.updated_at,
+  };
+}
+
+export function parseAlbumChild(child: AlbumChildAPIInterface): AlbumChildInterface {
+  return {
+    id: child.id,
+    name: child.name,
+    slug: child.slug,
+    description: child.description,
+    startDate: child.start_date,
+    endDate: child.end_date,
+    parent: child.parent,
+    cover: child.cover,
+    coverThumbnailUrl: child.cover_thumbnail_url,
+    mediaCount: child.media_count,
+    createdAt: child.created_at,
+    updatedAt: child.updated_at,
+  };
+}
+
+export function parseAlbumAdminDetail(
+  album: AlbumAdminDetailAPIInterface,
+): AlbumAdminDetailInterface {
+  return {
+    id: album.id,
+    name: album.name,
+    slug: album.slug,
+    description: album.description,
+    startDate: album.start_date,
+    endDate: album.end_date,
+    parent: album.parent,
+    cover: album.cover,
+    coverThumbnailUrl: album.cover_thumbnail_url,
+    media: album.media.map(parseMedia),
+    children: album.children.map(parseAlbumChild),
     createdAt: album.created_at,
     updatedAt: album.updated_at,
   };

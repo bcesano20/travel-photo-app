@@ -13,7 +13,9 @@ from ..models import Album, ShareLink
 
 def resolve_share_link(token: str, password: str | None = None) -> Album:
     try:
-        link = ShareLink.objects.select_related("album").get(token=token)
+        # album__cover is joined here because the serializer needs the cover's
+        # thumbnail key, and reading it lazily would cost one more query.
+        link = ShareLink.objects.select_related("album__cover").get(token=token)
     except ShareLink.DoesNotExist:
         raise NotFound(SHARE_LINK_NOT_FOUND_MESSAGE)
 

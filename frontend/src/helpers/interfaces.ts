@@ -105,6 +105,46 @@ export interface AlbumDetailInterface {
   updatedAt: string;
 }
 
+// A sub-album as returned inside its parent in the admin panel: cover and
+// file count only, without its media (the public gallery gets full media).
+export interface AlbumChildAPIInterface {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  start_date: string | null;
+  end_date: string | null;
+  parent: number | null;
+  cover: number | null;
+  cover_thumbnail_url: string | null;
+  media_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AlbumChildInterface {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  startDate: string | null;
+  endDate: string | null;
+  parent: number | null;
+  cover: number | null;
+  coverThumbnailUrl: string | null;
+  mediaCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AlbumAdminDetailAPIInterface extends Omit<AlbumDetailAPIInterface, "children"> {
+  children: AlbumChildAPIInterface[];
+}
+
+export interface AlbumAdminDetailInterface extends Omit<AlbumDetailInterface, "children"> {
+  children: AlbumChildInterface[];
+}
+
 export interface ShareLinkAPIInterface {
   id: number;
   album: number;

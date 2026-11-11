@@ -27,11 +27,13 @@ environ.Env.read_env(BASE_DIR / ".env")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-(*tl=biv$bvi1z912m2kg(uenj9jlb(3%vq)w%ltqycg#@#rmi"
+# Both come from the environment (backend/.env locally, Railway variables in
+# production). DEBUG defaults to False so a missing variable can never turn it
+# on in production; SECRET_KEY has no default, so Django refuses to start
+# without one instead of silently using a key that anyone could know.
+DEBUG = env.bool("DEBUG", default=False)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = env("SECRET_KEY")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
@@ -51,6 +53,9 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Compresses JSON responses (album payloads are large and repetitive).
+    # Near the top so it runs last on the way out, after CORS adds its headers.
+    "django.middleware.gzip.GZipMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -87,6 +92,12 @@ WSGI_APPLICATION = "wsgi.application"
 DATABASES = {
     "default": env.db("DATABASE_URL", default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
 }
+# Keep each worker's Postgres connection open between requests (Django's
+# default, 0, reconnects on every request: TCP + TLS + login each time).
+# Health checks drop a connection that went stale (e.g. after a DB restart)
+# instead of failing the next request. Override DB_CONN_MAX_AGE=0 to disable.
+DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
+DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 
 # Password validation
