@@ -1,5 +1,14 @@
 from django.db import models
+from django.db.models import Count, Q
 from django.utils.text import slugify
+
+
+class AlbumQuerySet(models.QuerySet):
+    def with_media_count(self):
+        """Annotate `media_count` (non-deleted media) in the same query."""
+        return self.annotate(
+            media_count=Count("media", filter=Q(media__deleted_at__isnull=True))
+        )
 
 
 class Album(models.Model):
@@ -33,6 +42,8 @@ class Album(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    objects = AlbumQuerySet.as_manager()
 
     class Meta:
         ordering = ["-start_date", "-created_at"]
