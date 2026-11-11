@@ -5,14 +5,15 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 
 import {
-  AlbumDetailAPIInterface,
-  AlbumDetailInterface,
+  AlbumAdminDetailAPIInterface,
+  AlbumAdminDetailInterface,
+  AlbumChildInterface,
   MediaAPIInterface,
   MediaInterface,
   ShareLinkAPIInterface,
   ShareLinkInterface,
 } from "@/helpers/interfaces";
-import { parseAlbumDetail, parseMedia, parseShareLink } from "@/helpers/apiParsers";
+import { parseAlbumAdminDetail, parseMedia, parseShareLink } from "@/helpers/apiParsers";
 import { ApiError, apiDelete, apiGet, apiPatch, apiPost } from "@/helpers/apiHelper";
 import { API_ENDPOINT_URL, ERROR_MESSAGES, ROUTES } from "@/helpers/constants";
 import { Button, EditAlbumModal, Input, NewAlbumModal } from "@/components";
@@ -60,14 +61,14 @@ const SubAlbumsSection = ({
   album,
   onChanged,
 }: {
-  album: AlbumDetailInterface;
+  album: AlbumAdminDetailInterface;
   onChanged: () => void;
 }) => {
   const [showNewSubAlbum, setShowNewSubAlbum] = useState<boolean>(false);
   const [editingChildId, setEditingChildId] = useState<number | null>(null);
   const [childError, setChildError] = useState<string | null>(null);
 
-  const handleDeleteChild = async (child: AlbumDetailInterface) => {
+  const handleDeleteChild = async (child: AlbumChildInterface) => {
     if (!window.confirm(`¿Eliminar el sub-álbum "${child.name}"?`)) return;
 
     setChildError(null);
@@ -135,7 +136,7 @@ const SubAlbumsSection = ({
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-neutral-900">{child.name}</p>
                   <p className="text-xs text-neutral-500">
-                    {child.media.length} {child.media.length === 1 ? "archivo" : "archivos"}
+                    {child.mediaCount} {child.mediaCount === 1 ? "archivo" : "archivos"}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
@@ -242,7 +243,7 @@ const AlbumDetailPage = () => {
   const params = useParams<{ id: string }>();
   const albumId = params.id;
 
-  const [album, setAlbum] = useState<AlbumDetailInterface | null>(null);
+  const [album, setAlbum] = useState<AlbumAdminDetailInterface | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
@@ -250,10 +251,10 @@ const AlbumDetailPage = () => {
 
   const loadAlbum = useCallback(async () => {
     try {
-      const data = await apiGet<AlbumDetailAPIInterface>(
+      const data = await apiGet<AlbumAdminDetailAPIInterface>(
         `${API_ENDPOINT_URL.ALBUMS_API}${albumId}/`,
       );
-      setAlbum(parseAlbumDetail(data));
+      setAlbum(parseAlbumAdminDetail(data));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : ERROR_MESSAGES.ALBUMS_NOT_LOAD);
     }

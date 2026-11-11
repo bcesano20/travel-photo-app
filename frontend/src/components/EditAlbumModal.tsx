@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 
 import { API_ENDPOINT_URL, ERROR_MESSAGES } from "@/helpers/constants";
-import { AlbumDataInterface, AlbumDetailAPIInterface } from "@/helpers/interfaces";
-import { parseAlbumDetail } from "@/helpers/apiParsers";
+import { AlbumAdminDetailAPIInterface, AlbumDataInterface } from "@/helpers/interfaces";
+import { parseAlbumAdminDetail } from "@/helpers/apiParsers";
 import { apiGet, apiPatch } from "@/helpers/apiHelper";
 import { Button } from "./Button";
 import { Input } from "./Input";
@@ -40,10 +40,10 @@ export const EditAlbumModal = ({ albumId, onClose, onUpdated }: EditAlbumModalPr
       setLoadingAlbum(true);
       setError(null);
       try {
-        const data = await apiGet<AlbumDetailAPIInterface>(
+        const data = await apiGet<AlbumAdminDetailAPIInterface>(
           `${API_ENDPOINT_URL.ALBUMS_API}${albumId}/`,
         );
-        const album = parseAlbumDetail(data);
+        const album = parseAlbumAdminDetail(data);
         setAlbumData({
           name: album.name,
           description: album.description,
