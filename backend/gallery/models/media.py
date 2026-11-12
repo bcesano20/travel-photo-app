@@ -1,6 +1,6 @@
 from django.db import models
 
-from ..constants import (
+from ..utils.constants import (
     MEDIA_STATUS_CHOICES,
     MEDIA_STATUS_ERROR,
     MEDIA_STATUS_PENDING,

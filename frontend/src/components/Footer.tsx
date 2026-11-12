@@ -54,7 +54,7 @@ const Footer = () => {
           <p>
             &copy; {CURRENT_YEAR} {branding.appName}. Todos los derechos reservados.
             <br />
-            Version 1.3.0
+            Version 1.3.1
           </p>
           <p> Desarrollado por Bruno Cesano</p>
         </div>

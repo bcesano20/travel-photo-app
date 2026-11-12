@@ -7,8 +7,8 @@ depending on request/response objects.
 
 from rest_framework.exceptions import NotFound, PermissionDenied
 
-from ..constants import SHARE_LINK_NOT_FOUND_MESSAGE
 from ..models import Album, ShareLink
+from ..utils.constants import SHARE_LINK_NOT_FOUND_MESSAGE
 
 
 def resolve_share_link(token: str, password: str | None = None) -> Album:
