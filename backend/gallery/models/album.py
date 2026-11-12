@@ -6,9 +6,16 @@ from django.utils.text import slugify
 class AlbumQuerySet(models.QuerySet):
     def with_media_count(self):
         """Annotate `media_count` (non-deleted media) in the same query."""
-        return self.annotate(
+        queryset = self.annotate(
             media_count=Count("media", filter=Q(media__deleted_at__isnull=True))
         )
+        # An aggregate turns the query into a GROUP BY, and Django ignores
+        # Meta.ordering in those queries. Without this the albums would come
+        # back in no particular order, so the default ordering is re-applied
+        # (unless the caller already chose one).
+        if not self.query.order_by:
+            queryset = queryset.order_by(*self.model._meta.ordering)
+        return queryset
 
 
 class Album(models.Model):
