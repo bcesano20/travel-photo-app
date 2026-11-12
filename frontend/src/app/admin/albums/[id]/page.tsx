@@ -193,7 +193,7 @@ const ShareLinkPanel = ({ albumId }: { albumId: number }) => {
 
   const handleRevoke = async () => {
     if (!link) return;
-    await apiPatch(`${API_ENDPOINT_URL.SHARE_LINKS_API}/${link.id}/`, { is_active: false });
+    await apiPatch(`${API_ENDPOINT_URL.SHARE_LINKS_API}${link.id}/`, { is_active: false });
     loadLink();
   };
 
