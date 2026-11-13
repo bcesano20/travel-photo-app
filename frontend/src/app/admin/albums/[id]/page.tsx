@@ -15,7 +15,7 @@ import {
 import { parseMedia } from "@/helpers/apiParsers";
 import { ApiError, apiDelete, apiPatch, apiPost } from "@/helpers/apiHelper";
 import { albumKeys, prefetchAlbumDetail, useActiveShareLink, useAlbumDetail } from "@/hooks";
-import { Button, EditAlbumModal, Input, NewAlbumModal } from "@/components";
+import { Button, EditAlbumModal, Input, NewAlbumModal, ProgressBar } from "@/components";
 
 interface UploadItem {
   id: string;
@@ -259,6 +259,12 @@ const AlbumDetailPage = () => {
   const handleFilesSelected = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
+    // Start a fresh batch (and a fresh progress bar) once the previous one has
+    // finished; while files are still uploading, new ones join the same bar.
+    if (!uploads.some((u) => u.status === "uploading" || u.status === "confirming")) {
+      setUploads([]);
+    }
+
     for (const file of Array.from(files)) {
       const uploadId = `${file.name}-${Date.now()}`;
       setUploads((prev) => [...prev, { id: uploadId, fileName: file.name, status: "uploading" }]);
@@ -319,6 +325,11 @@ const AlbumDetailPage = () => {
     }
   };
 
+  const uploadsDoneCount = uploads.filter((u) => u.status === "done").length;
+  const uploadErrors = uploads.filter((u) => u.status === "error");
+  const uploadsFinished =
+    uploads.length > 0 && uploadsDoneCount + uploadErrors.length === uploads.length;
+
   if (error) return <p className="text-sm text-red-600">{error}</p>;
   if (!album) return <p className="text-[32px] text-white">Cargando...</p>;
 
@@ -356,13 +367,22 @@ const AlbumDetailPage = () => {
       </div>
 
       {uploads.length > 0 && (
-        <ul className="mb-6 space-y-1 text-xs text-neutral-500">
-          {uploads.map((u) => (
-            <li key={u.id}>
-              {u.fileName} — {u.status === "error" ? `error: ${u.error}` : u.status}
-            </li>
-          ))}
-        </ul>
+        <div className="mb-6">
+          <ProgressBar
+            value={uploadsDoneCount}
+            total={uploads.length}
+            label={uploadsFinished ? "Subida completada" : "Subiendo archivos..."}
+          />
+          {uploadErrors.length > 0 && (
+            <ul className="mt-2 space-y-1 text-xs text-red-500">
+              {uploadErrors.map((u) => (
+                <li key={u.id}>
+                  {u.fileName} — {u.error}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       )}
 
       {mediaError && <p className="mb-4 text-sm text-red-600">{mediaError}</p>}
