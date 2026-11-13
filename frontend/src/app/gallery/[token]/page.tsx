@@ -73,7 +73,7 @@ const ChevronIcon = ({ open }: { open: boolean }) => (
   </svg>
 );
 
-// Collapsed by default so a long list of sub-albums stays easy to scroll. The photos are only mounted while open, 
+// Collapsed by default so a long list of sub-albums stays easy to scroll. The photos are only mounted while open,
 // so their thumbnails aren't loaded until the visitor expands the section.
 const CollapsibleSection = ({
   title,
