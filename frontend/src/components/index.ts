@@ -5,6 +5,7 @@ import { Textarea } from "./Textarea";
 import { NewAlbumModal } from "./NewAlbumModal";
 import { EditAlbumModal } from "./EditAlbumModal";
 import { QueryProvider } from "./QueryProvider";
+import { ProgressBar } from "./ProgressBar";
 import Footer from "./Footer";
 
 export {
@@ -15,5 +16,6 @@ export {
   NewAlbumModal,
   EditAlbumModal,
   QueryProvider,
+  ProgressBar,
   Footer,
 };
