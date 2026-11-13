@@ -61,6 +61,48 @@ const MediaGrid = ({
   </div>
 );
 
+const ChevronIcon = ({ open }: { open: boolean }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    className={`h-7 w-7 shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+  </svg>
+);
+
+// Collapsed by default so a long list of sub-albums stays easy to scroll. The photos are only mounted while open, 
+// so their thumbnails aren't loaded until the visitor expands the section.
+const CollapsibleSection = ({
+  title,
+  count,
+  children,
+}: PropsWithChildren<{ title: string; count: number }>) => {
+  const [open, setOpen] = useState<boolean>(false);
+
+  return (
+    <section className="mt-6 border-b border-neutral-200 pb-4">
+      <h2>
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-expanded={open}
+          className="flex w-full cursor-pointer items-center gap-3 text-left text-neutral-900"
+        >
+          <span className="text-[35px] font-semibold">{title}</span>
+          <ChevronIcon open={open} />
+          <span className="text-sm font-normal text-neutral-500">
+            {count} {count === 1 ? "archivo" : "archivos"}
+          </span>
+        </button>
+      </h2>
+      {open && <div className="mt-3">{children}</div>}
+    </section>
+  );
+};
+
 const Lightbox = ({
   items,
   index,
@@ -224,15 +266,15 @@ const PublicGalleryPage = () => {
   return (
     <main className="min-h-screen bg-neutral-50">
       <header className="border-b border-neutral-200 bg-white px-4 py-8 text-center">
-        <h1 className="text-lg font-semibold text-neutral-900">{album.name}</h1>
+        <h1 className="text-[42px] font-semibold text-neutral-900">{album.name}</h1>
         {album.description && (
-          <p className="mx-auto mt-1 max-w-md text-sm text-neutral-600">{album.description}</p>
+          <p className="mx-auto mt-1 max-w-md text-[28px] text-neutral-600">{album.description}</p>
         )}
       </header>
 
       <div className="mx-auto max-w-5xl px-2 py-6">
         {allMedia.length === 0 ? (
-          <p className="text-center text-sm text-neutral-500">
+          <p className="text-md text-center text-neutral-500">
             Todavía no hay fotos en este álbum.
           </p>
         ) : (
@@ -244,14 +286,17 @@ const PublicGalleryPage = () => {
             {childSections.map(
               (section) =>
                 section.media.length > 0 && (
-                  <div key={section.id} className="mt-10">
-                    <h2 className="mb-3 text-sm font-semibold text-neutral-900">{section.name}</h2>
+                  <CollapsibleSection
+                    key={section.id}
+                    title={section.name}
+                    count={section.media.length}
+                  >
                     <MediaGrid
                       media={section.media}
                       offset={section.offset}
                       onSelect={setLightboxIndex}
                     />
-                  </div>
+                  </CollapsibleSection>
                 ),
             )}
           </>
